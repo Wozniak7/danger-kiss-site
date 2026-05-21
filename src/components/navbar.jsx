@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
+const HIDDEN_ROUTES = ['/admin', '/login'];
+
 function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -15,6 +17,8 @@ function Navbar() {
     useEffect(() => {
         setMenuOpen(false);
     }, [location]);
+
+    if (HIDDEN_ROUTES.includes(location.pathname)) return null;
 
     const isActive = (path) => location.pathname === path;
 

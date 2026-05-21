@@ -1,15 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+
+const API = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+
+const defaultContent = {
+    hero: {
+        eyebrow: 'Banda Cover de Rock',
+        title: 'DANGER\nKISS',
+        subtitle: 'Cover · Rock Nacional & Internacional',
+        desc: 'A Danger Kiss é uma banda cover do Kiss, formada por músicos apaixonados que dedicam suas vidas a reviver os maiores momentos do rock nacional e internacional.',
+        statShows: '+1000',
+        statAnos: '10+',
+        statIntegrantes: '4'
+    },
+    home: {
+        aboutDesc1: 'Nascemos do amor pelo rock e da vontade de revelar toda a força dessa música ao vivo. A Danger Kiss Cover é a fusão perfeita entre técnica, emoção e energia pura — do clássico ao moderno, do nacional ao internacional.',
+        aboutDesc2: 'Com mais de 1000 shows realizados, levamos o melhor do rock para bares, casas de show, festivais e eventos corporativos em todo o Brasil.'
+    }
+};
+
+const defaultShows = [
+    { id: 1, dia: 'AGO', mes: 'AGO', local: 'Bar do Rock', cidade: 'São Paulo' },
+    { id: 2, dia: 'SET', mes: 'SET', local: 'Casa de Shows', cidade: 'Rio de Janeiro' },
+    { id: 3, dia: 'SET', mes: 'SET', local: 'Festival da Cidade', cidade: 'Belo Horizonte' },
+];
 
 function Home() {
     const [email, setEmail] = useState('');
     const [subscribed, setSubscribed] = useState(false);
+    const [content, setContent] = useState(defaultContent);
+    const [proximosShows, setProximosShows] = useState(defaultShows);
 
-    const proximosShows = [
-        { data: 'AGO 15', local: 'Bar do Rock', cidade: 'São Paulo' },
-        { data: 'SET 01', local: 'Casa de Shows', cidade: 'Rio de Janeiro' },
-        { data: 'SET 20', local: 'Festival da Cidade', cidade: 'Belo Horizonte' },
-    ];
+    useEffect(() => {
+        fetch(`${API}/api/content`)
+            .then(r => r.json())
+            .then(data => { if (data && data.hero) setContent(data); })
+            .catch(() => {}); // fallback to default
+
+        fetch(`${API}/api/shows`)
+            .then(r => r.json())
+            .then(data => { if (Array.isArray(data) && data.length > 0) setProximosShows(data.slice(0, 3)); })
+            .catch(() => {}); // fallback to default
+    }, []);
+
+    const hero = content.hero || defaultContent.hero;
+    const home = content.home || defaultContent.home;
 
     const handleSubscribe = (e) => {
         e.preventDefault();
@@ -24,15 +59,15 @@ function Home() {
                 <div className="hero-overlay" />
                 <div className="hero-content">
                     <div className="hero-eyebrow">
-                        Banda Cover de Rock
+                        {hero.eyebrow}
                     </div>
                     <h1 className="hero-title text-gradient">
-                        DANGER<br />KISS
+                        {(hero.title || 'DANGER\nKISS').split('\n').map((line, i, arr) => (
+                            <React.Fragment key={i}>{line}{i < arr.length - 1 && <br />}</React.Fragment>
+                        ))}
                     </h1>
-                    <p className="hero-subtitle">Cover · Rock Nacional & Internacional</p>
-                    <p className="hero-desc">
-                        A Danger Kiss é uma banda cover do Kiss, formada por músicos apaixonados que dedicam suas vidas a reviver os maiores momentos do rock nacional e internacional.
-                    </p>
+                    <p className="hero-subtitle">{hero.subtitle}</p>
+                    <p className="hero-desc">{hero.desc}</p>
                     <div className="hero-actions">
                         <Link to="/agenda" className="btn btn-primary">
                             🎸 Ver Próximos Shows
@@ -44,15 +79,15 @@ function Home() {
 
                     <div className="hero-stats">
                         <div>
-                            <div className="hero-stat-number">+1000</div>
+                            <div className="hero-stat-number">{hero.statShows}</div>
                             <div className="hero-stat-label">Shows Realizados</div>
                         </div>
                         <div>
-                            <div className="hero-stat-number">10+</div>
+                            <div className="hero-stat-number">{hero.statAnos}</div>
                             <div className="hero-stat-label">Anos de Estrada</div>
                         </div>
                         <div>
-                            <div className="hero-stat-number">4</div>
+                            <div className="hero-stat-number">{hero.statIntegrantes}</div>
                             <div className="hero-stat-label">Integrantes</div>
                         </div>
                     </div>
@@ -69,8 +104,8 @@ function Home() {
                 <div className="shows-strip-inner">
                     <span className="shows-strip-label">🔥 Próximos Shows</span>
                     {proximosShows.map((show, i) => (
-                        <div key={i} className="shows-strip-item">
-                            <span className="shows-strip-date">{show.data}</span>
+                        <div key={show.id || i} className="shows-strip-item">
+                            <span className="shows-strip-date">{show.mes || show.dia}</span>
                             <div>
                                 <div className="shows-strip-venue">{show.local}</div>
                                 <div className="shows-strip-city">{show.cidade}</div>
@@ -94,7 +129,7 @@ function Home() {
                                     <img src="/images/gallery_3.jpg" alt="Danger Kiss no palco" />
                                 </div>
                                 <div className="about-badge">
-                                    <span className="about-badge-num">10+</span>
+                                    <span className="about-badge-num">{hero.statAnos}</span>
                                     <span className="about-badge-text">Anos de Rock</span>
                                 </div>
                             </div>
@@ -106,12 +141,8 @@ function Home() {
                                 A Essência do Rock Ao Vivo
                             </h2>
                             <div className="separator" />
-                            <p className="about-desc">
-                                Nascemos do amor pelo rock e da vontade de revelar toda a força dessa música ao vivo. A Danger Kiss Cover é a fusão perfeita entre técnica, emoção e energia pura — do clássico ao moderno, do nacional ao internacional.
-                            </p>
-                            <p className="about-desc">
-                                Com mais de 1000 shows realizados, levamos o melhor do rock para bares, casas de show, festivais e eventos corporativos em todo o Brasil.
-                            </p>
+                            <p className="about-desc">{home.aboutDesc1}</p>
+                            <p className="about-desc">{home.aboutDesc2}</p>
 
                             <div className="band-members">
                                 {[

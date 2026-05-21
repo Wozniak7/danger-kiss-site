@@ -1,0 +1,20 @@
+{
+  "hero": {
+    "eyebrow": "Banda Cover do Kiss!",
+    "title": "DANGER\nKISS",
+    "subtitle": "Cover · Rock Nacional & Internacional",
+    "desc": "A Danger Kiss é uma banda cover do Kiss, formada por músicos apaixonados que dedicam suas vidas a reviver os maiores momentos do rock nacional e internacional.",
+    "statShows": "+1000",
+    "statAnos": "+5",
+    "statIntegrantes": "4"
+  },
+  "sobre": {
+    "missaoDesc1": "A Danger Kiss Cover nasceu do amor incondicional pelo rock — aquele gênero que moveu gerações, quebrou barreiras e transformou vidas. Somos uma banda formada por músicos apaixonados que dedicam suas vidas a reviver os maiores momentos do rock nacional e internacional.",
+    "missaoDesc2": "Com mais de 10 anos de estrada e centenas de shows realizados, nossa missão é simples: levar a emoção do rock ao vivo para onde você estiver. Seja em um bar íntimo, festival de grande porte ou evento corporativo — a Danger Kiss entrega sempre o máximo.",
+    "missaoDesc3": "A Danger Kiss é uma banda cover do Kiss, formada por músicos apaixonados que dedicam suas vidas a reviver os maiores momentos do rock nacional e internacional."
+  },
+  "home": {
+    "aboutDesc1": "Nascemos do amor pelo rock e da vontade de revelar toda a força dessa música ao vivo. A Danger Kiss Cover é a fusão perfeita entre técnica, emoção e energia pura — do clássico ao moderno, do nacional ao internacional.",
+    "aboutDesc2": "Com mais de 1000 shows realizados, levamos o melhor do rock para bares, casas de show, festivais e eventos corporativos em todo o Brasil."
+  }
+}

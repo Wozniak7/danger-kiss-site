@@ -1,6 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+
+const API = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+
+const defaultContent = {
+    sobre: {
+        missaoDesc1: 'A Danger Kiss Cover nasceu do amor incondicional pelo rock — aquele gênero que moveu gerações, quebrou barreiras e transformou vidas. Somos uma banda formada por músicos apaixonados que dedicam suas vidas a reviver os maiores momentos do rock nacional e internacional.',
+        missaoDesc2: 'Com mais de 10 anos de estrada e centenas de shows realizados, nossa missão é simples: levar a emoção do rock ao vivo para onde você estiver. Seja em um bar íntimo, festival de grande porte ou evento corporativo — a Danger Kiss entrega sempre o máximo.',
+        missaoDesc3: 'A Danger Kiss é uma banda cover do Kiss, formada por músicos apaixonados que dedicam suas vidas a reviver os maiores momentos do rock nacional e internacional.'
+    }
+};
 
 function Sobre() {
+    const [sobre, setSobre] = useState(defaultContent.sobre);
+
+    useEffect(() => {
+        fetch(`${API}/api/content`)
+            .then(r => r.json())
+            .then(data => { if (data?.sobre) setSobre(data.sobre); })
+            .catch(() => {});
+    }, []);
+
     const membros = [
         { icon: '🎤', name: 'Rodrigo Stanley', role: 'Vocal Principal', desc: 'Uma voz única que captura a essência de cada clássico do rock.' },
         { icon: '🎸', name: 'Stefano Frehley', role: 'Guitarra Solo', desc: 'Riffs poderosos e solos emocionantes que fazem a plateia enlouquecer.' },
@@ -29,15 +48,9 @@ function Sobre() {
                         <div className="section-label">Nossa Missão</div>
                         <h2 className="section-title">Por Que Existimos</h2>
                         <div className="separator" />
-                        <p className="about-desc">
-                            A Danger Kiss Cover nasceu do amor incondicional pelo rock — aquele gênero que moveu gerações, quebrou barreiras e transformou vidas. Somos uma banda formada por músicos apaixonados que dedicam suas vidas a reviver os maiores momentos do rock nacional e internacional.
-                        </p>
-                        <p className="about-desc">
-                            Com mais de 10 anos de estrada e centenas de shows realizados, nossa missão é simples: levar a emoção do rock ao vivo para onde você estiver. Seja em um bar íntimo, festival de grande porte ou evento corporativo — a Danger Kiss entrega sempre o máximo.
-                        </p>
-                        <p className="about-desc">
-                            A Danger Kiss é uma banda cover do Kiss, formada por músicos apaixonados que dedicam suas vidas a reviver os maiores momentos do rock nacional e internacional.
-                        </p>
+                        <p className="about-desc">{sobre.missaoDesc1}</p>
+                        <p className="about-desc">{sobre.missaoDesc2}</p>
+                        <p className="about-desc">{sobre.missaoDesc3}</p>
                     </div>
                     <div className="about-visual">
                         <div style={{ position: 'relative' }}>
@@ -97,19 +110,10 @@ function Sobre() {
                     <h2>Quer Contratar a Danger Kiss?</h2>
                     <p>Entre em contato para orçamentos e disponibilidade para shows, eventos e festivais.</p>
                     <a href="mailto:contato@dangerkiss.com.br" className="btn-white" style={{
-                        display: 'inline-block',
-                        padding: '0.85rem 2rem',
-                        borderRadius: '6px',
-                        fontFamily: 'Oswald, sans-serif',
-                        fontWeight: 700,
-                        letterSpacing: '0.08em',
-                        textTransform: 'uppercase',
-                        fontSize: '0.9rem',
-                        cursor: 'pointer',
-                        background: '#fff',
-                        color: '#c0392b',
-                        border: 'none',
-                        textDecoration: 'none'
+                        display: 'inline-block', padding: '0.85rem 2rem', borderRadius: '6px',
+                        fontFamily: 'Oswald, sans-serif', fontWeight: 700, letterSpacing: '0.08em',
+                        textTransform: 'uppercase', fontSize: '0.9rem', cursor: 'pointer',
+                        background: '#fff', color: '#c0392b', border: 'none', textDecoration: 'none'
                     }}>
                         📧 contato@dangerkiss.com.br
                     </a>
