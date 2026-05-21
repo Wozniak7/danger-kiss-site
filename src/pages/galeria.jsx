@@ -119,13 +119,13 @@ function Galeria() {
                         🎬 Acompanhe nossos shows completos nas redes sociais!
                     </p>
                     <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <a href="https://www.instagram.com/dangerkisscover/" className="btn btn-outline" onClick={e => e.preventDefault()}>
+                        <a href="https://www.instagram.com/dangerkisscover/" target="_blank" rel="noopener noreferrer" className="btn btn-outline">
                             📸 Instagram
                         </a>
-                        <a href="https://www.youtube.com/@dangerkisscover5240" className="btn btn-primary" onClick={e => e.preventDefault()}>
+                        <a href="https://www.youtube.com/@dangerkisscover5240" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
                             ▶ YouTube
                         </a>
-                        <a href="https://www.facebook.com/dangerkisscover/" className="btn btn-outline" onClick={e => e.preventDefault()}>
+                        <a href="https://www.facebook.com/dangerkisscover/" target="_blank" rel="noopener noreferrer" className="btn btn-outline">
                             📘 Facebook
                         </a>
                     </div>
