@@ -28,6 +28,7 @@ const defaultShows = [
 function Home() {
     const [email, setEmail] = useState('');
     const [subscribed, setSubscribed] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [content, setContent] = useState(defaultContent);
     const [proximosShows, setProximosShows] = useState(defaultShows);
 
@@ -46,9 +47,23 @@ function Home() {
     const hero = content.hero || defaultContent.hero;
     const home = content.home || defaultContent.home;
 
-    const handleSubscribe = (e) => {
+    const handleSubscribe = async (e) => {
         e.preventDefault();
-        if (email) setSubscribed(true);
+        if (!email) return;
+        setIsSubmitting(true);
+        try {
+            await fetch(`${API}/api/subscribe`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            setSubscribed(true);
+        } catch (error) {
+            console.error("Erro ao inscrever:", error);
+            alert("Erro ao enviar e-mail. Tente novamente mais tarde.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -216,7 +231,9 @@ function Home() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
-                            <button type="submit" className="btn-white">Quero!</button>
+                            <button type="submit" className="btn-white" disabled={isSubmitting}>
+                                {isSubmitting ? 'Enviando...' : 'Quero!'}
+                            </button>
                         </form>
                     ) : (
                         <p style={{ color: '#fff', fontWeight: 600, fontSize: '1.1rem' }}>

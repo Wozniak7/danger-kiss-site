@@ -109,13 +109,13 @@ function Sobre() {
                 <div className="cta-banner-content">
                     <h2>Quer Contratar a Danger Kiss?</h2>
                     <p>Entre em contato para orçamentos e disponibilidade para shows, eventos e festivais.</p>
-                    <a href="mailto:contato@dangerkiss.com.br" className="btn-white" style={{
+                    <a href="mailto:dangerkisscover@gmail.com" className="btn-white" style={{
                         display: 'inline-block', padding: '0.85rem 2rem', borderRadius: '6px',
                         fontFamily: 'Oswald, sans-serif', fontWeight: 700, letterSpacing: '0.08em',
                         textTransform: 'uppercase', fontSize: '0.9rem', cursor: 'pointer',
                         background: '#fff', color: '#c0392b', border: 'none', textDecoration: 'none'
                     }}>
-                        📧 contato@dangerkiss.com.br
+                        📧 dangerkisscover@gmail.com
                     </a>
                 </div>
             </div>

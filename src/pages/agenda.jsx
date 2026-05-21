@@ -105,7 +105,7 @@ function Agenda() {
                             Entre em contato para verificar disponibilidade e solicitar orçamento.
                         </p>
                     </div>
-                    <a href="mailto:booking@dangerkiss.com.br" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
+                    <a href="https://wa.me/5511967284008" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }} target="_blank">
                         Solicitar Orçamento
                     </a>
                 </div>

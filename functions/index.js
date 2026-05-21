@@ -26,6 +26,7 @@ const getBucket = () => {
 }
 
 const app = express();
+const nodemailer = require("nodemailer");
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_only_for_dev';
 
 app.use(cors({ origin: true }));
@@ -46,6 +47,71 @@ const authenticateToken = (req, res, next) => {
 // ─── PUBLIC ROUTES ───────────────────────────────────────────────────────────
 
 app.get("/api/", (req, res) => res.send("Danger Kiss API via Cloud Functions!"));
+
+// Newsletter / Agenda Subscribe
+app.post("/api/subscribe", async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "E-mail é obrigatório." });
+
+    try {
+        const snapshot = await getDb().collection("shows").get();
+        let shows = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        shows.sort((a, b) => {
+            const numVal = (s) => parseInt(s.ano || 0)*10000 + (s.mes?1:0)*100 + parseInt(s.dia || 0);
+            return numVal(a) - numVal(b);
+        });
+
+        let showsHtml = "";
+        if (shows.length === 0) {
+            showsHtml = "<p>No momento não temos shows marcados, mas fique ligado que em breve anunciaremos novas datas!</p>";
+        } else {
+            showsHtml = "<ul style='list-style-type: none; padding: 0;'>";
+            shows.forEach(s => {
+                showsHtml += `<li style='margin-bottom: 10px; padding: 10px; border-bottom: 1px solid #444;'>
+                    <strong style='color: #e50914;'>${s.dia}/${s.mes}/${s.ano}</strong><br/>
+                    ${s.local} - ${s.cidade}
+                </li>`;
+            });
+            showsHtml += "</ul>";
+        }
+
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; color: #fff; background-color: #111; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 8px;">
+                <h1 style="color: #e50914; text-align: center; margin-bottom: 5px;">⚡ DANGER KISS ⚡</h1>
+                <h2 style="text-align: center; color: #ddd; margin-top: 0;">Rock on! 🤘</h2>
+                <hr style="border: 1px solid #333; margin: 20px 0;" />
+                <p>Olá!</p>
+                <p>Obrigado por se inscrever para receber as novidades da Danger Kiss. Aqui está a nossa agenda atualizada de próximos shows:</p>
+                <div style="background-color: #222; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    ${showsHtml}
+                </div>
+                <p>Esperamos te ver na primeira fila cantando com a gente!</p>
+                <p style="color: #999; font-size: 0.9em;">Um abraço,<br/><strong>Banda Danger Kiss Cover</strong></p>
+            </div>
+        `;
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        await transporter.sendMail({
+            from: '"Danger Kiss" <' + process.env.EMAIL_USER + '>',
+            to: email,
+            subject: "🤘 Agenda de Shows - Danger Kiss",
+            html: htmlContent
+        });
+
+        res.json({ message: "E-mail enviado com sucesso!" });
+    } catch (error) {
+        console.error("Erro ao enviar email:", error);
+        res.status(500).json({ error: "Erro interno ao enviar e-mail." });
+    }
+});
 
 // Login + Bootstrap Admin
 app.post("/api/login", async (req, res) => {
