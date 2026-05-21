@@ -86,7 +86,7 @@ app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     const user = users.find(u => u.username === username && u.password === password);
     if (user) {
-        const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '8h' });
+        const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1h' });
         res.json({ message: 'Login bem-sucedido!', token });
     } else {
         res.status(401).json({ message: 'Credenciais inválidas.' });

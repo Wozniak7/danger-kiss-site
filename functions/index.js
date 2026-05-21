@@ -142,7 +142,7 @@ app.post("/api/login", async (req, res) => {
         const isValid = await bcrypt.compare(password, userData.passwordHash);
         
         if (isValid) {
-            const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '8h' });
+            const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' });
             res.json({ message: 'Login bem-sucedido!', token });
         } else {
             res.status(401).json({ message: 'Credenciais inválidas.' });

@@ -603,6 +603,14 @@ function Admin() {
                 </nav>
 
                 <div style={{ padding: '1.5rem', borderTop: '1px solid var(--color-border)' }}>
+                    <button onClick={() => navigate('/')} style={{
+                        width: '100%', padding: '0.7rem', background: 'transparent',
+                        border: '1.5px solid var(--color-border)', color: 'var(--color-text)',
+                        borderRadius: '8px', fontFamily: 'var(--font-body)', fontSize: '0.82rem',
+                        cursor: 'pointer', fontWeight: 600, marginBottom: '0.5rem'
+                    }}>
+                        🏠 Voltar ao Site
+                    </button>
                     <button onClick={handleLogout} style={{
                         width: '100%', padding: '0.7rem', background: 'transparent',
                         border: '1.5px solid var(--color-border)', color: 'var(--color-text-muted)',
