@@ -65,7 +65,7 @@ function Footer() {
                     <div>
                         <div className="footer-col-title">Contato</div>
                         <div className="footer-links">
-                            <a href="mailto:dangerkisscover@gmail.com">[EMAIL_ADDRESS]</a>
+                            <a href="mailto:dangerkisscover@gmail.com">dangerkisscover@gmail.com</a>
                             <a href="tel:+5511967284008">+55 (11) 96728-4008</a>
                         </div>
                     </div>
