@@ -27,9 +27,28 @@ const getBucket = () => {
 
 const app = express();
 const nodemailer = require("nodemailer");
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_only_for_dev';
+const rateLimit = require("express-rate-limit");
 
-app.use(cors({ origin: true }));
+const JWT_SECRET = process.env.JWT_SECRET;
+const SECRET = JWT_SECRET || (process.env.FUNCTIONS_EMULATOR === 'true' ? 'fallback_secret_only_for_dev' : null);
+if (!SECRET) {
+    console.error("ERRO CRÍTICO: JWT_SECRET ausente em ambiente de produção!");
+}
+const ACTIVE_SECRET = SECRET || require('crypto').randomBytes(64).toString('hex');
+
+const allowedOrigins = [
+    'http://localhost:5173', 'http://localhost:3000', 
+    'https://danger-kiss-cover.web.app', 'https://danger-kiss-cover.firebaseapp.com'
+];
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Acesso bloqueado pelo CORS'));
+        }
+    }
+}));
 app.use(express.json());
 
 // Auth Middleware
@@ -37,19 +56,31 @@ const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.sendStatus(401);
-    jwt.verify(token, JWT_SECRET, (err, user) => {
+    jwt.verify(token, ACTIVE_SECRET, (err, user) => {
         if (err) return res.sendStatus(403);
         req.user = user;
         next();
     });
 };
 
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { error: "Muitas tentativas de login. Tente novamente em 15 minutos." }
+});
+
+const subscribeLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 3,
+    message: { error: "Muitas tentativas de inscrição. Tente novamente mais tarde." }
+});
+
 // ─── PUBLIC ROUTES ───────────────────────────────────────────────────────────
 
 app.get("/api/", (req, res) => res.send("Danger Kiss API via Cloud Functions!"));
 
 // Newsletter / Agenda Subscribe
-app.post("/api/subscribe", async (req, res) => {
+app.post("/api/subscribe", subscribeLimiter, async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "E-mail é obrigatório." });
 
@@ -108,13 +139,13 @@ app.post("/api/subscribe", async (req, res) => {
 
         res.json({ message: "E-mail enviado com sucesso!" });
     } catch (error) {
-        console.error("Erro ao enviar email:", error);
-        res.status(500).json({ error: "Erro interno ao enviar e-mail." });
+        console.error("Erro interno ao enviar e-mail:", error.message);
+        res.status(500).json({ error: "Erro interno no servidor." });
     }
 });
 
 // Login + Bootstrap Admin
-app.post("/api/login", async (req, res) => {
+app.post("/api/login", loginLimiter, async (req, res) => {
     const { username, password } = req.body;
     try {
         const _db = getDb();
@@ -142,13 +173,14 @@ app.post("/api/login", async (req, res) => {
         const isValid = await bcrypt.compare(password, userData.passwordHash);
         
         if (isValid) {
-            const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ username }, ACTIVE_SECRET, { expiresIn: '1h' });
             res.json({ message: 'Login bem-sucedido!', token });
         } else {
             res.status(401).json({ message: 'Credenciais inválidas.' });
         }
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        console.error("Erro interno:", e.message);
+        res.status(500).json({ error: "Erro interno no servidor." });
     }
 });
 
@@ -248,6 +280,13 @@ app.post("/api/upload", authenticateToken, (req, res) => {
     bb.on("file", (name, file, info) => {
         const { filename, mimeType } = info;
         const ext = path.extname(filename).toLowerCase();
+        const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+        
+        if (!allowedExts.includes(ext)) {
+            stream.resume();
+            return;
+        }
+
         const newFilename = `gallery_upload_${Date.now()}${ext}`;
         const cloudFile = getBucket().file(`gallery/${newFilename}`);
         
