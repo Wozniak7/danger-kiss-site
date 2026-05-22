@@ -27,7 +27,6 @@ const getBucket = () => {
 
 const app = express();
 const nodemailer = require("nodemailer");
-const rateLimit = require("express-rate-limit");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const SECRET = JWT_SECRET || (process.env.FUNCTIONS_EMULATOR === 'true' ? 'fallback_secret_only_for_dev' : null);
@@ -63,17 +62,32 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 5,
-    message: { error: "Muitas tentativas de login. Tente novamente em 15 minutos." }
-});
+// Rate Limiters Customizados (evita setInterval que causa timeout no Firebase Deploy)
+const createLimiter = (windowMs, max, message) => {
+    const hits = new Map();
+    return (req, res, next) => {
+        const ip = req.ip;
+        const now = Date.now();
+        if (!hits.has(ip)) {
+            hits.set(ip, { count: 1, resetTime: now + windowMs });
+            return next();
+        }
+        const data = hits.get(ip);
+        if (now > data.resetTime) {
+            data.count = 1;
+            data.resetTime = now + windowMs;
+            return next();
+        }
+        data.count++;
+        if (data.count > max) {
+            return res.status(429).json({ error: message });
+        }
+        next();
+    };
+};
 
-const subscribeLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000,
-    max: 3,
-    message: { error: "Muitas tentativas de inscrição. Tente novamente mais tarde." }
-});
+const loginLimiter = createLimiter(15 * 60 * 1000, 5, "Muitas tentativas de login. Tente novamente em 15 minutos.");
+const subscribeLimiter = createLimiter(60 * 60 * 1000, 3, "Muitas tentativas de inscrição. Tente novamente mais tarde.");
 
 // ─── PUBLIC ROUTES ───────────────────────────────────────────────────────────
 
